@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>나의 달력 메모장</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="나의 달력">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#EDF0F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11151B" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Nanum+Myeongjo:wght@800&display=swap">
@@ -25,6 +34,7 @@
   --personal: #2B8660;
   --etc: #B0741A;
   --today-ring: #3B4BA8;
+  --wx-sun: #E39B1B; --wx-cloud: #DCE3EC; --wx-cloud-edge: #9AA7B6; --wx-rain: #3A7BD5;
   --font-display: "Nanum Myeongjo", "Noto Serif KR", serif;
   --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -34,13 +44,13 @@
   :root:not([data-theme="light"]) {
     --bg: #11151B; --surface: #1A2029; --surface-2: #202834; --ink: #E5E9EF; --muted: #93A0B0;
     --line: #2B3441; --accent: #9DA9FF; --accent-soft: #262D4D; --holiday: #FF7B71; --saturday: #84AAF0;
-    --work: #84AAF0; --personal: #62C89C; --etc: #E5B35C; --today-ring: #9DA9FF; color-scheme: dark;
+    --work: #84AAF0; --personal: #62C89C; --etc: #E5B35C; --today-ring: #9DA9FF; --wx-sun: #F2B53A; --wx-cloud: #4A5566; --wx-cloud-edge: #7D8A9C; --wx-rain: #6FA8F5; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #11151B; --surface: #1A2029; --surface-2: #202834; --ink: #E5E9EF; --muted: #93A0B0;
   --line: #2B3441; --accent: #9DA9FF; --accent-soft: #262D4D; --holiday: #FF7B71; --saturday: #84AAF0;
-  --work: #84AAF0; --personal: #62C89C; --etc: #E5B35C; --today-ring: #9DA9FF; color-scheme: dark;
+  --work: #84AAF0; --personal: #62C89C; --etc: #E5B35C; --today-ring: #9DA9FF; --wx-sun: #F2B53A; --wx-cloud: #4A5566; --wx-cloud-edge: #7D8A9C; --wx-rain: #6FA8F5; color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -49,7 +59,7 @@ button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.app { max-width: 1280px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 40px; display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 360px; align-items: start; }
+.app { max-width: 1280px; margin: 0 auto; padding-inline: 16px; padding-block: calc(env(safe-area-inset-top, 0px) + 20px) calc(env(safe-area-inset-bottom, 0px) + 40px); display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 360px; align-items: start; }
 @media (max-width: 900px) { .app { grid-template-columns: minmax(0, 1fr); } }
 
 /* 상단 바 */
@@ -94,6 +104,17 @@ button { cursor: pointer; }
 .cell.sun .num, .cell.hol .num { color: var(--holiday); }
 .cell.sat:not(.hol) .num { color: var(--saturday); }
 .cell.today .num { box-shadow: inset 0 0 0 2px var(--today-ring); }
+.wx-ico { width: 15px; height: 15px; flex: none; overflow: visible; }
+.wx-sun { fill: var(--wx-sun); }
+.wx-ray path, .wx-drop path { stroke-linecap: round; fill: none; }
+.wx-ray path { stroke: var(--wx-sun); stroke-width: 1.2; }
+.wx-cloud { fill: var(--wx-cloud); stroke: var(--wx-cloud-edge); stroke-width: .8; }
+.wx-drop path { stroke: var(--wx-rain); stroke-width: 1.3; }
+.wx-flake circle { fill: var(--wx-rain); }
+.wx { margin-left: auto; display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; flex: none; }
+.day-wx { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); margin-top: 4px; }
+.day-wx .wx-ico { width: 18px; height: 18px; }
+@media (max-width: 640px) { .wx span { display: none; } }
 .hname { font-size: 11px; color: var(--holiday); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .ev { font-size: 12px; border-radius: 4px; padding: 1px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: color-mix(in srgb, var(--c) 14%, transparent); color: var(--ink); border-left: 3px solid var(--c); }
 .ev.memo-chip { background: transparent; border: 1px dashed var(--c); border-left: 3px solid var(--c); color: var(--muted); }
@@ -209,6 +230,7 @@ html, body { margin: 0; }
       <div>
         <h2 class="day-title" id="dayTitle"></h2>
         <div class="day-sub" id="daySub"></div>
+        <div class="day-wx" id="dayWx" hidden></div>
       </div>
       <div class="list" id="dayList"></div>
       <form class="editor" id="evForm" autocomplete="off">
@@ -320,7 +342,7 @@ const state = {
   view: new Date(), selected: ymd(new Date()),
   filter: { work: true, personal: true, etc: true },
   editingEvent: null, editingMemo: null, memoQuery: "",
-  holidaysUpdated: null
+  holidaysUpdated: null, weather: {}
 };
 state.view.setDate(1);
 
@@ -334,20 +356,58 @@ const fromRow = {
   memos:  r => ({ id: r.id, title: r.title || "", body: r.body || "", cat: r.cat, date: r.date || "", createdAt: Date.parse(r.created_at), updatedAt: Date.parse(r.updated_at) })
 };
 
+
+/* ---------- 동기화: 바뀐 게 있을 때만, 보고 있는 달 근처만 받아오기 ---------- */
+const Sync = { sig: null, from: null, to: null, holidaysAt: 0, busy: false, again: false, ready: false };
+function monthRange(view, before, after) {
+  return [ymd(new Date(view.getFullYear(), view.getMonth() - before, 1)), ymd(new Date(view.getFullYear(), view.getMonth() + after + 1, 0))];
+}
+function needsRange(view) {
+  if (!Sync.from) return true;
+  const a = ymd(new Date(view.getFullYear(), view.getMonth(), 1)), b = ymd(new Date(view.getFullYear(), view.getMonth() + 1, 0));
+  return a < Sync.from || b > Sync.to;
+}
+// 아주 작은 요청 3개로 "바뀐 게 있는지" 확인 (개수 + 마지막 수정 시각)
+async function changeSignature() {
+  const q = t => sb.from(t).select("updated_at", { count: "exact" }).order("updated_at", { ascending: false }).limit(1);
+  const [e, m, w] = await Promise.all([q("events"), q("memos"), q("weather")]);
+  if (e.error || m.error) return null;
+  const top = r => (r.data && r.data[0] ? r.data[0].updated_at : "");
+  return JSON.stringify([e.count, top(e), m.count, top(m), w.error ? "" : top(w)]);
+}
+
 const Store = {
   mode: "loading",
 
   // 일정·메모·공휴일 전부 불러오기
-  async loadAll() {
-    const [ev, me, ho] = await Promise.all([
-      sb.from("events").select("*"),
+  async loadAll(force) {
+    if (Sync.busy) { if (force) Sync.again = true; return; }
+    Sync.busy = true;
+    try { await this._load(force); }
+    finally {
+      Sync.busy = false;
+      if (Sync.again) { Sync.again = false; this.loadAll(true); }
+    }
+  },
+  async _load(force) {
+    const holidaysDue = Date.now() - Sync.holidaysAt > 3600 * 1000;
+    const sig = await changeSignature();
+    if (!force && !holidaysDue && sig && sig === Sync.sig && !needsRange(state.view)) {
+      this.mode = "cloud"; showStatus(); return;      // 바뀐 것 없음
+    }
+    const [from, to] = monthRange(state.view, 2, 3);   // 보고 있는 달 기준 2달 전 ~ 3달 후
+    const [ev, me, ho, wx] = await Promise.all([
+      sb.from("events").select("*").gte("date", from).lte("date", to),
       sb.from("memos").select("*"),
-      sb.from("holidays").select("date,name,updated_at")
+      (force || holidaysDue) ? sb.from("holidays").select("date,name,updated_at") : Promise.resolve(null),
+      sb.from("weather").select("date,code,wf,tmin,tmax,pop")
     ]);
     if (ev.error || me.error) { this.mode = "error"; showStatus(); return; }
+    Sync.sig = sig; Sync.from = from; Sync.to = to; Sync.ready = true;
+    if (ho && !ho.error) Sync.holidaysAt = Date.now();
     state.events = ev.data.map(fromRow.events);
     state.memos = me.data.map(fromRow.memos);
-    if (!ho.error && ho.data.length) {
+    if (ho && !ho.error && ho.data.length) {
       // 서버 공휴일로 교체 (실패하면 코드에 들어있는 공휴일을 그대로 씀)
       for (const k of Object.keys(HOLIDAYS)) delete HOLIDAYS[k];
       let latest = 0;
@@ -359,6 +419,7 @@ const Store = {
       }
       state.holidaysUpdated = latest ? new Date(latest) : null;
     }
+    if (wx && !wx.error) { state.weather = {}; wx.data.forEach(w => state.weather[w.date] = w); }
     this.mode = "cloud";
     showStatus(); render(); renderMemos();
   },
@@ -395,8 +456,18 @@ async function showApp(session) {
   document.getElementById("appRoot").hidden = !loggedIn;
   if (loggedIn) {
     document.getElementById("who").textContent = session.user.email || "";
-    await Store.loadAll();
+    await Store.loadAll(true);
+    openFromAddress();
   }
+}
+/* 위젯에서 눌러 열린 주소: ?date=2026-10-07 (&add=1 이면 새 일정 입력) */
+function openFromAddress() {
+  const q = new URLSearchParams(location.search);
+  const date = q.get("date");
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+  selectDate(date);
+  if (q.get("add")) setTimeout(() => document.getElementById("evTitle").focus(), 400);
+  history.replaceState(null, "", location.pathname);
 }
 document.getElementById("loginForm").addEventListener("submit", async e => {
   e.preventDefault();
@@ -435,12 +506,35 @@ function eventsOn(dateStr) {
     .sort((a, b) => (a.start || "99").localeCompare(b.start || "99") || (a.title || "").localeCompare(b.title || ""));
 }
 
+/* 날씨 아이콘 (16x16) */
+const WX_ICON = (() => {
+  const sun = '<circle class="wx-sun" cx="8" cy="8" r="3.2"/><g class="wx-ray"><path d="M8 1.2v2M8 12.8v2M1.2 8h2M12.8 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4"/></g>';
+  const smallSun = '<circle class="wx-sun" cx="5.6" cy="5.4" r="2.6"/><g class="wx-ray"><path d="M5.6 0.9v1.2M1.1 5.4h1.2M2.4 2.2l.9.9M8.8 2.2l-.9.9"/></g>';
+  const cloud = (y = 0) => `<path class="wx-cloud" d="M4.6 ${12.2 + y}h7.2a2.7 2.7 0 0 0 .3-5.4 3.6 3.6 0 0 0-6.9-.6 2.9 2.9 0 0 0-.6 6z"/>`;
+  const drops = '<g class="wx-drop"><path d="M5.4 13.4l-.8 1.8M8.4 13.4l-.8 1.8M11.4 13.4l-.8 1.8"/></g>';
+  const flakes = '<g class="wx-flake"><circle cx="5" cy="14.4" r=".9"/><circle cx="8" cy="14.9" r=".9"/><circle cx="11" cy="14.4" r=".9"/></g>';
+  const mixed = '<g class="wx-drop"><path d="M5.4 13.4l-.8 1.8M10.6 13.4l-.8 1.8"/></g><g class="wx-flake"><circle cx="8" cy="14.6" r=".9"/></g>';
+  const svg = b => `<svg class="wx-ico" viewBox="0 0 16 16" aria-hidden="true">${b}</svg>`;
+  return {
+    clear: svg(sun),
+    partly: svg(smallSun + cloud(1)),
+    cloudy: svg(cloud(1)),
+    rain: svg(cloud(-1.5) + drops),
+    shower: svg(smallSun + cloud(-1.5) + drops),
+    snow: svg(cloud(-1.5) + flakes),
+    sleet: svg(cloud(-1.5) + mixed)
+  };
+})();
+const wxTemp = w => (w.tmin != null && w.tmax != null) ? `${Math.round(w.tmin)}°/${Math.round(w.tmax)}°` : (w.tmax != null ? `${Math.round(w.tmax)}°` : "");
+const wxLine = w => [w.wf, wxTemp(w).replace("/", " / "), w.pop != null ? `강수 ${w.pop}%` : ""].filter(Boolean).join(" · ");
+
 function memosOn(dateStr) {
   return state.memos.filter(m => m.date === dateStr && state.filter[m.cat] !== false);
 }
 const memoLabel = m => m.title || (m.body || "").split("\n")[0] || "제목 없음";
 
 function renderCalendar() {
+  if (Sync.ready && !Sync.busy && needsRange(state.view)) Store.loadAll(true);
   const y = state.view.getFullYear(), m = state.view.getMonth();
   document.getElementById("mTitle").textContent = (m + 1) + "월";
   document.getElementById("yTitle").textContent = y + "년";
@@ -477,6 +571,13 @@ function renderCalendar() {
     num.className = "num"; num.textContent = d.getDate();
     top.appendChild(num);
     if (hol) { const h = document.createElement("span"); h.className = "hname"; h.textContent = hol; top.appendChild(h); }
+    const w = state.weather[key];
+    if (w && WX_ICON[w.code]) {
+      const wx = document.createElement("span"); wx.className = "wx"; wx.title = wxLine(w);
+      wx.innerHTML = WX_ICON[w.code];
+      const t = document.createElement("span"); t.textContent = w.tmax != null ? Math.round(w.tmax) + "°" : ""; wx.appendChild(t);
+      top.appendChild(wx);
+    }
     cell.appendChild(top);
 
     const chips = [
@@ -508,6 +609,9 @@ function renderDay() {
   const d = parseYmd(state.selected);
   document.getElementById("dayTitle").textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${DOW_KO[d.getDay()]}요일`;
   document.getElementById("daySub").textContent = HOLIDAYS[state.selected] || "";
+  const dw = state.weather[state.selected], dwEl = document.getElementById("dayWx");
+  dwEl.hidden = !dw;
+  if (dw) { dwEl.innerHTML = WX_ICON[dw.code] || ""; dwEl.append("청주 흥덕구 · " + wxLine(dw)); }
   const list = document.getElementById("dayList");
   const evs = eventsOn(state.selected);
   const mms = memosOn(state.selected);
